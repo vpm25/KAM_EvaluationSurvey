@@ -119,6 +119,7 @@ textarea:focus,.spec:focus,.pct-in:focus{outline:none;border-color:#2d5a8e}
         <button class="lang-btn" onclick="selectLang('ru',this)"><div class="lang-flag">🇷🇺</div><span class="lang-name">Русский</span><span class="lang-native">Russian</span></button>
       </div>
       <button class="lang-continue" onclick="startSurvey()">Continue →</button>
+      <p style="text-align:center;margin-top:.85rem"><a href="javascript:void(0)" onclick="resumeWithCode()" id="resumeLink" style="font-size:12px;color:#2d5a8e;text-decoration:underline;cursor:pointer">Continue on another device? Enter your code</a></p>
       <p style="margin-top:1rem;font-size:11px;color:#94a3b8;text-align:center;line-height:1.5">🤖 Translations into Spanish, Chinese, Portuguese and Russian were generated with AI and may contain minor inaccuracies.</p>
     </div>
   </div>
@@ -198,6 +199,18 @@ textarea:focus,.spec:focus,.pct-in:focus{outline:none;border-color:#2d5a8e}
   </div>
 </div>
 
+
+<!-- Recovery Code Modal -->
+<div id="recoveryModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9998;align-items:center;justify-content:center;padding:1rem">
+  <div style="background:white;border-radius:16px;max-width:400px;width:100%;padding:2rem;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.3)">
+    <div style="font-size:2.5rem;margin-bottom:.5rem">💾</div>
+    <h2 id="recTitle" style="font-size:1.2rem;font-weight:700;color:#1e3a5f;margin-bottom:.5rem">Progress saved</h2>
+    <p id="recDesc" style="font-size:13px;color:#64748b;margin-bottom:1rem;line-height:1.5">To continue on another device, use this code:</p>
+    <div id="recCode" style="font-size:1.8rem;font-weight:700;letter-spacing:.1em;color:#1e3a5f;background:#dbeafe;border-radius:10px;padding:.75rem;margin-bottom:1rem;font-family:monospace">PANDA-42</div>
+    <p id="recNote" style="font-size:11px;color:#94a3b8;margin-bottom:1.25rem;line-height:1.5">Write it down — you'll need it to resume on a different device. Your progress is also saved automatically on this device.</p>
+    <button onclick="closeRecovery()" style="width:100%;padding:.7rem;border-radius:8px;border:none;background:linear-gradient(135deg,#1e3a5f,#2d5a8e);color:white;font-size:13px;font-weight:700;font-family:var(--f);cursor:pointer">Got it</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -210,13 +223,28 @@ try{
   _db=firebase.database();
 }catch(e){console.warn('Firebase unavailable:',e);}
 
+var _animals=['PANDA','TIGER','EAGLE','KOALA','OTTER','LEMUR','PUMA','HERON','BISON','GECKO','RAVEN','LYNX','MOOSE','CRANE','IBEX','OKAPI','TAPIR','MARLIN','FALCON','COBRA','VIPER','MANTA','ORYX','QUOLL'];
+function _genCode(){
+  var animal=_animals[Math.floor(Math.random()*_animals.length)];
+  var num=Math.floor(Math.random()*90)+10;
+  return animal+'-'+num;
+}
 function _sid(){
-  try{var s=localStorage.getItem('kam26_sid');if(s)return s;s='kam_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);localStorage.setItem('kam26_sid',s);return s;}catch(e){return 'kam_'+Date.now();}
+  try{
+    var s=localStorage.getItem('kam26_sid');
+    if(s)return s;
+    s=_genCode();
+    // Ensure uniqueness check happens at save time; store locally
+    localStorage.setItem('kam26_sid',s);
+    return s;
+  }catch(e){return _genCode();}
 }
 function _payload(status){
   var p={status:status,lang:lang,timestamp:new Date().toISOString(),_sid:_sid()};
   Object.keys(ans).forEach(function(k){var v=ans[k];if(Array.isArray(v))p[k]=v.join(' | ');else if(v&&typeof v==='object')Object.keys(v).forEach(function(i){p[k+'_row'+i]=v[i];});else if(v!==undefined)p[k]=v;});
   Object.keys(pct).forEach(function(k){p['grid_'+k.replace(/[^a-zA-Z0-9]/g,'_')]=pct[k];});
+  // Store full state as JSON for clean cross-device recovery
+  try{p._state=JSON.stringify({ans:ans,pct:pct,cur:cur});}catch(e){}
   return p;
 }
 function fbSave(status){try{if(_db)_db.ref('responses/'+_sid()).set(_payload(status||'in_progress'));}catch(e){}}
@@ -343,7 +371,10 @@ function save(){try{localStorage.setItem('kam26',JSON.stringify({lang:lang,cur:c
 function load(){try{var d=JSON.parse(localStorage.getItem('kam26')||'null');if(d&&d.cur){var sl=lang;lang=d.lang||'en';cur=d.cur||0;Object.assign(ans,d.ans||{});Object.assign(pct,d.pct||{});lang=sl;return true;}return false;}catch(e){return false;}}
 function clearSaved(){try{localStorage.removeItem('kam26');}catch(e){}}
 
-function manualSave(){save();fbSave('in_progress');showToast(t('savedText'));}
+function manualSave(){
+  save();fbSave('in_progress');
+  showRecoveryModal(_sid());
+}
 function showToast(msg){var el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},3000);}
 
 // ── Progress ──────────────────────────────────────────────────────────────
@@ -704,6 +735,78 @@ function deleteOneResponse(sid){
     document.getElementById('statCompleted').textContent=completed;
     document.getElementById('statInProgress').textContent=rows.length-completed;
     renderTable();
+  }).catch(function(e){alert('Error: '+e.message);});
+}
+
+
+// ── Recovery code ─────────────────────────────────────────────────────────
+function showRecoveryModal(code){
+  var recTitle={en:'Progress saved',es:'Progreso guardado',zh:'进度已保存',pt:'Progresso salvo',ru:'Прогресс сохранён'};
+  var recDesc={en:'To continue on another device, use this code:',es:'Para continuar en otro dispositivo, usa este código:',zh:'要在其他设备上继续，请使用此代码：',pt:'Para continuar em outro dispositivo, use este código:',ru:'Чтобы продолжить на другом устройстве, используйте этот код:'};
+  var recNote={en:"Write it down — you'll need it to resume on a different device. Your progress is also saved automatically on this device.",es:'Anótalo — lo necesitarás para continuar en otro dispositivo. Tu progreso también se guarda automáticamente en este dispositivo.',zh:'请记下它——在其他设备上继续时需要用到。您的进度也会自动保存在此设备上。',pt:'Anote-o — você precisará dele para continuar em outro dispositivo. Seu progresso também é salvo automaticamente neste dispositivo.',ru:'Запишите его — он понадобится для продолжения на другом устройстве. Ваш прогресс также автоматически сохраняется на этом устройстве.'};
+  var recBtn={en:'Got it',es:'Entendido',zh:'知道了',pt:'Entendi',ru:'Понятно'};
+  document.getElementById('recTitle').textContent=recTitle[lang]||recTitle.en;
+  document.getElementById('recDesc').textContent=recDesc[lang]||recDesc.en;
+  document.getElementById('recNote').textContent=recNote[lang]||recNote.en;
+  document.getElementById('recCode').textContent=code;
+  var btn=document.querySelector('#recoveryModal button');
+  if(btn) btn.textContent=recBtn[lang]||recBtn.en;
+  document.getElementById('recoveryModal').style.display='flex';
+}
+function closeRecovery(){
+  document.getElementById('recoveryModal').style.display='none';
+  showToast(t('savedText'));
+}
+
+function rebuildFromFlat(data){
+  Object.keys(data).forEach(function(k){
+    if(['status','lang','timestamp','_sid','_state'].indexOf(k)>=0)return;
+    if(k.indexOf('grid_')===0)return;
+    if(k.indexOf('_row')>0){
+      var base=k.substring(0,k.indexOf('_row'));
+      var idx=parseInt(k.substring(k.indexOf('_row')+4));
+      if(!ans[base])ans[base]={};
+      ans[base][idx]=data[k];
+    } else if(typeof data[k]==='string' && data[k].indexOf(' | ')>=0){
+      ans[k]=data[k].split(' | ');
+    } else {
+      ans[k]=data[k];
+    }
+  });
+}
+
+function resumeWithCode(){
+  var codeMsg={en:'Enter your recovery code (e.g. PANDA-42):',es:'Ingresa tu código de recuperación (ej. PANDA-42):',zh:'请输入您的恢复代码（例如 PANDA-42）：',pt:'Digite seu código de recuperação (ex. PANDA-42):',ru:'Введите код восстановления (например, PANDA-42):'};
+  var code=prompt(codeMsg[lang]||codeMsg.en);
+  if(!code)return;
+  code=code.trim().toUpperCase();
+  if(!_db){alert('Firebase not connected. Open in a browser.');return;}
+  _db.ref('responses/'+code).once('value').then(function(snap){
+    var data=snap.val();
+    if(!data){
+      var notFound={en:'Code not found. Please check and try again.',es:'Código no encontrado. Verifica e intenta de nuevo.',zh:'未找到代码。请检查后重试。',pt:'Código não encontrado. Verifique e tente novamente.',ru:'Код не найден. Проверьте и попробуйте снова.'};
+      alert(notFound[lang]||notFound.en);
+      return;
+    }
+    // Restore answers from Firebase data
+    try{ localStorage.setItem('kam26_sid', code); window._kamSessionId=code; }catch(e){}
+    ans={}; pct={}; cur=0;
+    // Prefer clean _state JSON if available
+    if(data._state){
+      try{
+        var st=JSON.parse(data._state);
+        ans=st.ans||{}; pct=st.pct||{}; cur=st.cur||0;
+      }catch(e){ rebuildFromFlat(data); }
+    } else {
+      rebuildFromFlat(data);
+    }
+    if(data.lang) lang=data.lang;
+    save();
+    document.getElementById('langScreen').style.display='none';
+    document.getElementById('surveyWrap').style.display='block';
+    show();
+    var resumed={en:'✓ Progress restored from code '+code,es:'✓ Progreso restaurado con el código '+code,zh:'✓ 已通过代码 '+code+' 恢复进度',pt:'✓ Progresso restaurado com o código '+code,ru:'✓ Прогресс восстановлен по коду '+code};
+    showToast(resumed[lang]||resumed.en);
   }).catch(function(e){alert('Error: '+e.message);});
 }
 
