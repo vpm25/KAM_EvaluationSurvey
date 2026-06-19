@@ -48,10 +48,10 @@ h1.title{font-size:1.5rem;font-weight:700;margin-bottom:.2rem;letter-spacing:-.0
 .sec-desc{font-size:var(--sm);color:#64748b;padding:.5rem 2rem 0;line-height:1.6}
 .qs{padding:1rem 2rem;display:flex;flex-direction:column;gap:1.5rem}
 .qb{border-left:3px solid #dbeafe;padding-left:1rem}
-.qb.has-error{border-left-color:#ef4444}
+.qb.has-error{border-left-color:#ef4444;border-left-width:4px;background:#fef2f2;border-radius:0 8px 8px 0;padding-top:.5rem;padding-bottom:.5rem;margin-left:-.25rem}
 .qt{font-size:var(--base);font-weight:600;color:#1e293b;line-height:1.5;margin-bottom:.75rem}
 .qn{color:#2d5a8e;font-weight:700;margin-right:.25rem}
-.q-err{font-size:var(--xs);color:#ef4444;margin-top:.35rem;display:none}
+.q-err{font-size:var(--xs);color:#ef4444;margin-top:.35rem;display:none;font-weight:600}
 .qb.has-error .q-err{display:block}
 .opts{display:flex;flex-direction:column;gap:.35rem}
 .ol{display:flex;align-items:center;gap:.6rem;cursor:pointer;padding:.1rem 0}
@@ -254,11 +254,11 @@ function fbSubmit(){try{if(_db){_db.ref('responses/'+_sid()).set(_payload('compl
 var lang='en', cur=0, ans={}, pct={};
 
 var T={
-  en:{tag:"KAM Survey",title:"Understanding your day-to-day",sub:"KAM Survey 2026 · Confidential · Approx. 15 min",next:"Next →",prev:"← Previous",save:"💾 Save",doneTitle:"Survey Completed!",doneMsg:"Thank you for your time. Your answers will help us measure KAM maturity across regions and drive concrete improvements.",specify:"Specify here...",pctNote:"Percentages should add up to 100%",pctTotal:"Total",exceeds:"— Exceeds 100%",required:"This question is required",progress:" questions answered",secLabels:["Profile","KAM Model","Time","Prep & Follow-up","Analytics","Capability","Impact","Maturity"],resumeText:"✓ Progress restored — continuing where you left off",savedText:"✓ Progress saved — you can close this tab and resume later",incomplete:"You have unanswered questions. Jumping to the first incomplete section.",submit:"Submit Survey"},
-  es:{tag:"Encuesta KAM",title:"Entendiendo tu día a día",sub:"Encuesta KAM 2026 · Confidencial · Aprox. 15 min",next:"Siguiente →",prev:"← Anterior",save:"💾 Guardar",doneTitle:"¡Encuesta completada!",doneMsg:"Gracias por tu tiempo. Tus respuestas nos ayudarán a medir la madurez del KAM en todas las regiones.",specify:"Especifica aquí...",pctNote:"Los porcentajes deben sumar 100%",pctTotal:"Total",exceeds:"— Supera el 100%",required:"Esta pregunta es obligatoria",progress:" preguntas respondidas",secLabels:["Perfil","Modelo KAM","Tiempo","Preparación","Analítica","Capacidad","Impacto","Madurez"],resumeText:"✓ Progreso restaurado — continuando donde lo dejaste",savedText:"✓ Progreso guardado — puedes cerrar esta pestaña y continuar después",incomplete:"Tienes preguntas sin responder. Saltando a la primera sección incompleta.",submit:"Enviar encuesta"},
-  zh:{tag:"KAM 调查",title:"了解您的日常工作",sub:"KAM 调查 2026 · 保密 · 约 15 分钟",next:"下一步 →",prev:"← 上一步",save:"💾 保存",doneTitle:"调查已完成！",doneMsg:"感谢您的参与。您的回答将帮助我们衡量各地区的KAM成熟度并推动具体改进。",specify:"请在此说明...",pctNote:"各项百分比之和应为100%",pctTotal:"合计",exceeds:"— 超过100%",required:"此题为必答题",progress:" 道题已回答",secLabels:["档案","KAM模型","时间","准备","分析","能力","影响","成熟度"],resumeText:"✓ 进度已恢复 — 从您上次离开的地方继续",savedText:"✓ 进度已保存 — 您可以关闭此标签页，稍后继续",incomplete:"您还有未完成的题目。正在跳转到第一个未完成的部分。",submit:"提交调查"},
-  ru:{tag:"Опрос KAM",title:"Понимание вашей повседневной работы",sub:"Опрос KAM 2026 · Конфиденциально · Прибл. 15 мин",next:"Далее →",prev:"← Назад",save:"💾 Сохранить",doneTitle:"Опрос завершён!",doneMsg:"Спасибо за ваше время. Ваши ответы помогут нам измерить зрелость KAM в регионах и внедрить конкретные улучшения.",specify:"Укажите здесь...",pctNote:"Сумма процентов должна равняться 100%",pctTotal:"Итого",exceeds:"— Превышает 100%",required:"Этот вопрос обязателен",progress:" вопросов отвечено",secLabels:["S1","S2","S3","S4","S5","S6","S7","S8"],resumeText:"✓ Прогресс восстановлен — продолжайте с того места, где остановились",savedText:"✓ Прогресс сохранён — вы можете закрыть вкладку и продолжить позже",incomplete:"У вас есть неотвеченные вопросы. Переход к первому незавершённому разделу.",submit:"Отправить опрос"},
-  pt:{tag:"Pesquisa KAM",title:"Entendendo seu dia a dia",sub:"Pesquisa KAM 2026 · Confidencial · Aprox. 15 min",next:"Próximo →",prev:"← Anterior",save:"💾 Salvar",doneTitle:"Pesquisa concluída!",doneMsg:"Obrigado pelo seu tempo. Suas respostas nos ajudarão a medir a maturidade do KAM em todas as regiões.",specify:"Especifique aqui...",pctNote:"As porcentagens devem somar 100%",pctTotal:"Total",exceeds:"— Ultrapassa 100%",required:"Esta pergunta é obrigatória",progress:" perguntas respondidas",secLabels:["Perfil","Modelo KAM","Tempo","Preparação","Analytics","Capacidade","Impacto","Maturidade"],resumeText:"✓ Progresso restaurado — continuando de onde você parou",savedText:"✓ Progresso salvo — você pode fechar esta aba e continuar depois",incomplete:"Você ainda tem perguntas sem resposta. Indo para a primeira seção incompleta.",submit:"Enviar pesquisa"}
+  en:{tag:"KAM Survey",title:"Understanding your day-to-day",sub:"KAM Survey 2026 · Confidential · Approx. 15 min",next:"Next →",prev:"← Previous",save:"💾 Save",doneTitle:"Survey Completed!",doneMsg:"Thank you for your time. Your answers will help us measure KAM maturity across regions and drive concrete improvements.",specify:"Specify here...",pctNote:"Percentages should add up to 100%",pctTotal:"Total",exceeds:"— Exceeds 100%",required:"This question is required",progress:" questions answered",secLabels:["Profile","KAM Model","Time","Prep & Follow-up","Analytics","Capability","Impact","Maturity"],resumeText:"✓ Progress restored — continuing where you left off",savedText:"✓ Progress saved — you can close this tab and resume later",incomplete:"Some questions are still unanswered — they are now highlighted in red below.",submit:"Submit Survey"},
+  es:{tag:"Encuesta KAM",title:"Entendiendo tu día a día",sub:"Encuesta KAM 2026 · Confidencial · Aprox. 15 min",next:"Siguiente →",prev:"← Anterior",save:"💾 Guardar",doneTitle:"¡Encuesta completada!",doneMsg:"Gracias por tu tiempo. Tus respuestas nos ayudarán a medir la madurez del KAM en todas las regiones.",specify:"Especifica aquí...",pctNote:"Los porcentajes deben sumar 100%",pctTotal:"Total",exceeds:"— Supera el 100%",required:"Esta pregunta es obligatoria",progress:" preguntas respondidas",secLabels:["Perfil","Modelo KAM","Tiempo","Preparación","Analítica","Capacidad","Impacto","Madurez"],resumeText:"✓ Progreso restaurado — continuando donde lo dejaste",savedText:"✓ Progreso guardado — puedes cerrar esta pestaña y continuar después",incomplete:"Algunas preguntas siguen sin responder — ahora están resaltadas en rojo abajo.",submit:"Enviar encuesta"},
+  zh:{tag:"KAM 调查",title:"了解您的日常工作",sub:"KAM 调查 2026 · 保密 · 约 15 分钟",next:"下一步 →",prev:"← 上一步",save:"💾 保存",doneTitle:"调查已完成！",doneMsg:"感谢您的参与。您的回答将帮助我们衡量各地区的KAM成熟度并推动具体改进。",specify:"请在此说明...",pctNote:"各项百分比之和应为100%",pctTotal:"合计",exceeds:"— 超过100%",required:"此题为必答题",progress:" 道题已回答",secLabels:["档案","KAM模型","时间","准备","分析","能力","影响","成熟度"],resumeText:"✓ 进度已恢复 — 从您上次离开的地方继续",savedText:"✓ 进度已保存 — 您可以关闭此标签页，稍后继续",incomplete:"还有一些题目未完成——现已在下方以红色标出。",submit:"提交调查"},
+  ru:{tag:"Опрос KAM",title:"Понимание вашей повседневной работы",sub:"Опрос KAM 2026 · Конфиденциально · Прибл. 15 мин",next:"Далее →",prev:"← Назад",save:"💾 Сохранить",doneTitle:"Опрос завершён!",doneMsg:"Спасибо за ваше время. Ваши ответы помогут нам измерить зрелость KAM в регионах и внедрить конкретные улучшения.",specify:"Укажите здесь...",pctNote:"Сумма процентов должна равняться 100%",pctTotal:"Итого",exceeds:"— Превышает 100%",required:"Этот вопрос обязателен",progress:" вопросов отвечено",secLabels:["S1","S2","S3","S4","S5","S6","S7","S8"],resumeText:"✓ Прогресс восстановлен — продолжайте с того места, где остановились",savedText:"✓ Прогресс сохранён — вы можете закрыть вкладку и продолжить позже",incomplete:"Некоторые вопросы остались без ответа — теперь они выделены красным ниже.",submit:"Отправить опрос"},
+  pt:{tag:"Pesquisa KAM",title:"Entendendo seu dia a dia",sub:"Pesquisa KAM 2026 · Confidencial · Aprox. 15 min",next:"Próximo →",prev:"← Anterior",save:"💾 Salvar",doneTitle:"Pesquisa concluída!",doneMsg:"Obrigado pelo seu tempo. Suas respostas nos ajudarão a medir a maturidade do KAM em todas as regiões.",specify:"Especifique aqui...",pctNote:"As porcentagens devem somar 100%",pctTotal:"Total",exceeds:"— Ultrapassa 100%",required:"Esta pergunta é obrigatória",progress:" perguntas respondidas",secLabels:["Perfil","Modelo KAM","Tempo","Preparação","Analytics","Capacidade","Impacto","Maturidade"],resumeText:"✓ Progresso restaurado — continuando de onde você parou",savedText:"✓ Progresso salvo — você pode fechar esta aba e continuar depois",incomplete:"Algumas perguntas ainda estão sem resposta — agora destacadas em vermelho abaixo.",submit:"Enviar pesquisa"}
 };
 function t(k){return (T[lang]&&T[lang][k])||T.en[k]||'';}
 
@@ -410,8 +410,47 @@ function updateProgress(){
   if(row)row.style.display='flex';
 }
 
+function highlightIncomplete(){
+  var sec=S[cur];if(!sec.qs)return;
+  var qboxes=document.querySelectorAll('#qc .qb');
+  var firstBad=null;
+  sec.qs.forEach(function(q,idx){
+    if(q.t==='textarea')return;
+    if(q.conditional){var cv=ans[q.conditional];var vis=Array.isArray(cv)?cv.includes(q.condValue):cv===q.condValue;if(!vis)return;}
+    var incomplete=false;
+    if(q.t==='select'&&!ans[q.id])incomplete=true;
+    if(q.t==='multi'&&!(ans[q.id]&&ans[q.id].length>0))incomplete=true;
+    if(q.t==='scale'&&!ans[q.id])incomplete=true;
+    if(q.t==='grid'){var items=q.items[lang]||q.items.en;if(items.reduce(function(s,it){return s+(parseInt(pct[it])||0);},0)===0)incomplete=true;}
+    if(q.t==='likert'){var rows=q.rows[lang]||q.rows.en;var a=ans[q.id]||{};if(Object.keys(a).length<rows.length)incomplete=true;}
+    // Find the matching qb in DOM (qboxes are in render order incl conditional-visible)
+    var visibleIdx=0;
+    for(var k=0;k<=idx;k++){
+      var qq=sec.qs[k];
+      if(qq.conditional){var cv2=ans[qq.conditional];var vis2=Array.isArray(cv2)?cv2.includes(qq.condValue):cv2===qq.condValue;if(!vis2)continue;}
+      if(k<idx)visibleIdx++;
+    }
+    if(incomplete&&qboxes[visibleIdx]){
+      qboxes[visibleIdx].classList.add('has-error');
+      if(!firstBad)firstBad=qboxes[visibleIdx];
+    }
+  });
+  if(firstBad){firstBad.scrollIntoView({behavior:'smooth',block:'center'});}
+}
+
 function trySubmit(){
-  if(!isComplete()){showToast(t('incomplete'));for(var i=0;i<S.length;i++){if(sectionIncomplete(i)){cur=i;show();window.scrollTo({top:0,behavior:'smooth'});return;}}return;}
+  if(!isComplete()){
+    showToast(t('incomplete'));
+    for(var i=0;i<S.length;i++){
+      if(sectionIncomplete(i)){
+        cur=i;show();
+        // After render, highlight the first incomplete question in this section
+        setTimeout(function(){highlightIncomplete();},150);
+        return;
+      }
+    }
+    return;
+  }
   clearSaved();fbSubmit();
   document.getElementById('qc').style.display='none';
   document.getElementById('secNav').style.display='none';
@@ -501,8 +540,10 @@ function buildNav(){
   var labels=t('secLabels')||[];
   S.forEach(function(sec,i){
     var btn=document.createElement('button');
+    var incomplete=sectionIncomplete(i);
     btn.className='sec-dot '+(i===cur?'active':i<cur?'done':'pending');
-    btn.textContent=(i<cur?'✓ ':i===cur?'● ':'○ ')+(labels[i]||sec.title[lang]||sec.title.en);
+    var marker=i<cur?'✓ ':i===cur?'● ':'○ ';
+    btn.textContent=marker+(labels[i]||sec.title[lang]||sec.title.en);
     btn.onclick=(function(idx){return function(){cur=idx;show();window.scrollTo({top:0,behavior:'smooth'});};})(i);
     nav.appendChild(btn);
   });
